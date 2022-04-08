@@ -29,3 +29,9 @@ main {
     flex-direction:column;
     width: 25%;
 }
+
+weather-info {
+    display: flex;
+    flex-direction: column;
+    width: 70%;
+}
