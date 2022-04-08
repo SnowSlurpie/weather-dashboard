@@ -5,8 +5,33 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather Dashbaord</title>
+    <link rel="stylesheet" href="./assets/css/style.css" />
 </head>
 <body>
-    
+    <header>
+        <h1>Weather Dashbaord</h1>
+    </header>
+<!--Main Page Content-->
+    <main>
+        <!--Search bar & button & list-->
+        <section class="search">
+            <label for="search-bar" id="search-bar-text">Search for your city here</label>
+            <input type="text" id="search-bar" placeholder="City Name" />
+            <button id="search-btn" type="submit">Search</button>
+            <ul id="search-list"></ul>
+        </section>
+<!--Forcast box & Cards-->
+        <section class="weather-info">
+            <div class="current-forcast">
+                <h2>City&Date</h2>
+            </div>
+            <div class="future-forcast">
+                <h3>5-Day Forcast:</h3>
+                <div class="container"></div>
+            </div>
+        </section>
+
+    </main>
+    <script src="./assets/js/script.js"></script>
 </body>
 </html>
