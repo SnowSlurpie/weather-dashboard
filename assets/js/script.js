@@ -1,58 +1,179 @@
 var apiKey = 'c0d05296dbfe48354a5109caac0dd8f2';
-var weatherUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=20&lon=86&exclude=minutely,hourly,alerts&appid=" + apiKey + "&units=standard";
-var cityInput = "Irmo";
-var lat;
-var lon;
+var city = "Tulsa"
+var date = moment().format('LL');
+var fiveDayForecast = $('.fiveDayForecast');
+var cityHistory = [];
+var historyContainer = $('.cityHistory');
+var todayBody = $('.todayBody')
 
+// function when city search button is clicked
+$('.search').click(function (event){
+    event.preventDefault();
+    city = $(this).parent('.btnPar').siblings('.textVal').val().trim();
+    if (city === "") {
+        return;
+    };
+    cityHistory.push(city);
 
-var cities = [];
-// emojis from https://emojipedia.org/search/?q=weather
-var weatherEmojis = ["☁️","🌡️","🌫️","❄️", "🌨️", "⛅",   ]; 
+    // saves to local storage
+    localStorage.setItem('city', JSON.stringify(cityHistory));
+    fiveDayForecast.empty();
+    getHistory();
+    getCurrentWeather();
+});
 
-function loadCityData() {
-    // get city data from local storage
-    if (!localStorage.getItem("cities")) {
-        localStorage.setItem("cities", JSON.stringify(cities));
-    } else {
-        cities = JSON.parse(localStorage.getItem("cities"));
-    }
-}
+// function to display previously searched cities
+function getHistory() {
+    historyContainer.empty();
 
-// return data from url
-function getInfo(url) {
-fetch(url)
-.then(function (response){
-    return response.json();
-}).then(function(data){
-    console.log(data);
-    return data;
-}).catch(function(error){
-    console.log(error.message);
-})
-}
+    for (var i = 0; i < cityHistory.length; i++) {
+        var rowEl = $('<row>');
+        var btnEl = $('<button>').text(`${cityHistory[i]}`);
 
-// get coorinates of a city
-function getCoords(city) {
-    var cityUrl ="http://api.openweathermap.org/geo/1.0/direct?q="+ city + "&limit=1&appid=" + apiKey;
+        rowEl.addClass('row hisBtnRow');
+        btnEl.addClass('btn btn-outline-secondary histBtn');
+        btnEl.attr('type', 'button');
 
-    // fetch city coordinates
-    fetch(cityUrl)
-    .then(function (response){
-        return response.json();
-    }).then(function(data){
-        console.log(data);
-        if (data.length !== 0){
-            // set latitude and longitude
-            lat = data[0].lat;
-            lon = data[0].lon;
-            console.log(lat, lon);
-        } else {
-            console.log("City not found");
-        }
-    }).catch(function(error){
-        console.log(error.message);
-    })
+        historyContainer.prepend(rowEl);
+        rowEl.append(btnEl);
+    } if (!city) {
+        return;
+    };
 
-}
+    // displays city info once histBtn is clicked
+    $('.histBtn').click(function (event) {
+        event.preventDefault();
+        city = $(this).text();
+        fiveDayForecast.empty();
+        getCurrentWeather();
+    });
+};
 
-getCoords(cityInput);
+// collects current weather and displays in today card
+ function getCurrentWeather() {
+    var getUrlCurrent = (`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${apiKey}`);
+    
+    $(todayBody).empty();
+
+    // fetches weather information from api
+    $.ajax({
+        url: getUrlCurrent,
+        method: 'GET',
+    }).then(function(response) {
+        // console.log(response);
+        $('.todayCityName').text(response.name);
+        $('.todayDate').text(date);
+        // collects icons
+        $('.icons').attr('src', `https://openweathermap.org/img/wn/${response.weather[0].icon}@2x.png`); 
+
+        // data variables
+        var lon = response.coord.lon;
+        var lat = response.coord.lat;
+        var tempEl = $('<p>').text(`Temperature: ${response.main.temp}°F`);
+        var humidityEl = $('<p>').text(`Humidity: ${response.main.humidity}%`);
+        var windEl = $('<p>').text(`Wind Speed: ${response.wind.speed} MPH`);
+        
+        todayBody.append(tempEl);
+        todayBody.append(humidityEl);
+        todayBody.append(windEl);
+
+        // fetches UV index from api
+        var getUrlUvi = (`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=hourly,daily,minutely&appid=${apiKey}`);
+
+        $.ajax({
+            url: getUrlUvi,
+            method: "GET",
+        }).then(function(response) {
+            var uviEl = $('<p>').text(`UV Index: `);
+            var uviSpan = $('<span>').text(response.current.uvi);
+            var uvi = response.current.uvi;
+            uviEl.append(uviSpan);
+            todayBody.append(uviEl);
+
+            // adds background color to UV Index
+            if (uvi >= 0 && uvi <= 3) {
+                uviSpan.attr("class", "green");
+            }else if (uvi > 3 && uvi <= 6) {
+                uviSpan.attr("class", "yellow");
+            }else if (uvi > 6 && uvi <= 100) {
+                uviSpan.attr("class", "red");
+            }
+        });
+    });
+
+    // displays 5 day forcast after data is collected
+    getFiveDayForecast();
+};
+
+// function to display 5 day forcast
+function getFiveDayForecast() {
+    var getUrlFiveDay = (`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=imperial&appid=${apiKey}`);
+    
+    $.ajax({
+        url: getUrlFiveDay,
+        method: "GET",
+    }).then(function(response) {
+        // five day forcast array start
+        var fiveDayArray = response.list;
+        var weatherArray = [];
+        $.each(fiveDayArray, function(i, value) {
+            testObj = {
+                date: value.dt_txt.split(" ")[0],
+                time: value.dt_txt.split(" ")[1],
+                icon: value.weather[0].icon,
+                temp: value.main.temp,
+                humidity: value.main.humidity,
+                wind: value.wind.speed,
+            };
+             
+            if (value.dt_txt.split(" ")[1] === "12:00:00") {
+                weatherArray.push(testObj);
+            };
+        })
+        // displays five day forcast cards
+        for (var i = 0; i < weatherArray.length; i++) {
+            var divCard = $('<div>');
+            divCard.attr('class', 'card text-white bg-primary mb-3');
+            divCard.attr('style', 'max-width: 200px;');
+            fiveDayForecast.append(divCard);
+
+            var divHeader = $('<div>');
+            divHeader.attr('class', 'card-header');
+
+            // displays date
+            var date5Day = moment(`${weatherArray[i].date}`).format('MM-DD-YYYY');
+            divHeader.text(date5Day);
+            divCard.append(divHeader);
+
+            var divBody = $('<div>');
+            divBody.attr('class', 'card-body');
+            divCard.append(divBody);
+
+            // displays icons
+            var divIcon = $('<img>');
+            divIcon.attr('class', 'icon');
+            divIcon.attr('src', `https://openweathermap.org/img/wn/${weatherArray[i].icon}@2x.png`);
+            divBody.append(divIcon);
+
+            var tempEl = $('<p>').text(`Temperature: ${weatherArray[i].temp}°F`);
+            divBody.append(tempEl);
+            var humidityEl = $('<p>').text(`Humidity: ${weatherArray[i].humidity}%`);
+            divBody.append(humidityEl);
+            var windEl = $('<p>').text(`Wind Speed: ${weatherArray[i].wind} MPH`);
+            divBody.append(windEl);
+        };
+    });
+};
+
+//start city shows Tulsa and pulls any local storage data
+function startCity() {
+    var cityHistoryStore = JSON.parse(localStorage.getItem('city'));
+    if (cityHistoryStore !== null) {
+        cityHistory = cityHistoryStore
+    };
+
+    getHistory();
+    getCurrentWeather();
+};
+
+startCity();

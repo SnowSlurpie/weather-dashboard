@@ -1,87 +1,37 @@
-:root {
-    --color1: rgb(0, 0, 107);
-    --color2: rgb(69, 69, 175);
-    --color3: white;
-    --color4: rgb(192, 192, 192);
+h1 {
+    background-image: linear-gradient(45deg,#FA8BFF, 0%, #041974 52%, #4109a8 90%);
+    background-size: 1px 100px;
+    background-position: 0 -10px;
+	text-align: center;
+    color: #ffffff
 }
-
-* {
-    margin: 0;
+.card {
+	margin: 10px;
+    background-color: #ffffff;
+    font-weight: bolder;
 }
-
-
-body {
-    background: var(--color3);
-    font-family: Helvetica, Arial, sans-serif;
+.green{
+  background-color: green;
+  border-radius: 15px;
+  margin: 5px;
+  padding: 5px;
 }
-
-header {
-    background-image: linear-gradient(to right, var(--color2), var(--color1));
-    color: var(--color3);
-    text-align: center;
+.yellow{
+  background-color: yellow;
+  border-radius: 15px;
+  margin: 5px;
+  padding: 5px;
 }
-
-main {
-    display:flex;
-    justify-content: space-between;
+.red{
+  background-color: red;
+  border-radius: 15px;
+  margin: 5px;
+  padding: 5px;
 }
-
-/* search section start */
-.search {
-    display:flex;
-    flex-direction: column;
-    align-items:stretch;
-    width: 25%;
-    margin: 5px;
+.icons {
+	height: 70px;
+	width: 70px;
 }
-
-.search form {
-    display:flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-#search-bar-text {
-    font-weight:bold;
-    font-size: 20px;
-}
-
-#search-bar {
-    height: 30px;
-    margin: 5px 0;
-    border-radius: 5px;
-    border: 1px solid;
-}
-
-#search-btn {
-    height: 25px;
-    width:100%;
-    background-image: linear-gradient(to right, var(--color1), var(--color2), var(--color1));
-    color: var(--color3);
-    border-radius: 5px;
-    border: 2px solid linear-gradient(to right, var(--color1), var(--color2), var(--color1));
-}
-
-#search-btn:hover {
-    background-image: linear-gradient(to right, var(--color2), var(--color1), var(--color2));
-    border: 2px solid linear-gradient(to right, var(--color2), var(--color1), var(--color2));
-}
-
-#search-list {
-    margin-top: 10px;
-    border-top: 2px solid var(--color4);
-}
-
-/* Forecast section start */
-.weather-info {
-    display:flex;
-    flex-direction: column;
-    width: 70%;
-    margin: 5px;
-    
-}
-
-.current-forecast {
-    border: 1px solid black;
-    border-radius: 2px;
+.cardTodayDate {
+	font-size: 20px;
 }
